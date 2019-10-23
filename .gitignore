@@ -1,0 +1,14 @@
+.gitvsoch
+nushell.egg-info
+.twist
+.env
+__pycache__
+*.sif
+pypi.sh
+_site
+.eggs
+_build
+build
+dist
+*.pyc
+OLD
