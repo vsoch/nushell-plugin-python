@@ -5,11 +5,11 @@
 # Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-__version__ = "0.0.1"
+__version__ = "0.0.11"
 AUTHOR = 'Vanessa Sochat'
 AUTHOR_EMAIL = 'vsochat@stanford.edu'
 NAME = 'nushell'
-PACKAGE_URL = "http://www.github.com/vsoch/nushell-python-plugin"
+PACKAGE_URL = "http://www.github.com/vsoch/nushell-plugin-python"
 KEYWORDS = 'nushell, plugin, nu'
 DESCRIPTION = "Python module to easily create nushell plugins"
 LICENSE = "LICENSE"
