@@ -1,6 +1,6 @@
 # Nushell Plugin Python
 
-[![PyPI version](https://badge.fury.io/py/nushell.svg)](https://badge.fury.io/py/nushell)
+[![PyPI version](https://badge.fury.io/py/nushell.svg)](https://pypi.org/project/nushell/)
 
 This is a python module to allow for easy creation of plugins. It's
 already fairly easy, but this can improve upon that! Each of the examples provided comes with:
