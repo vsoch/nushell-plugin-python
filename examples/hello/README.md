@@ -60,3 +60,37 @@ Be excited!
 > hello --name dinosaur --excited
 Hello dinosaur!
 ```
+
+## Bulid Containers
+
+You can build a container with nushell and the python module (as it is in the repository)
+
+```bash
+make
+docker build -t vanessa/nu-plugin-hello .
+# nu
+/code> help hello
+A friendly plugin
+
+Usage:
+  > hello {flags} 
+
+flags:
+  --excited
+  --name <String>
+  --help
+```
+
+or as a standalone binary:
+
+```bash
+make standalone
+docker build -f Dockerfile.standalone -t vanessa/nu-plugin-hello .
+```
+
+And execution proceeds as before. We can prove that we don't need the modules anymore because
+the [Dockerfile.standalone](Dockerfile.standalone) does `pip3 uninstall -y nushell` and it still works.
+Why might you want to do this? It will mean that your plugin is a single file (binary) and you don't
+need to rely on modules elsewhere in the system. I suspect there are other ways to compile
+python into a single binary (e.g., cython) but this was the first I tried, and fairly straight forward.
+If you find a different or better way, please contribute to this code base!

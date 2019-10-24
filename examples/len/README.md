@@ -77,9 +77,43 @@ you initialize the plugin.
 
 ## Build Python
 
-You can optionally build the container:
+You can optionally build the container, doing a regular make will build a container
+with nu and the installed python modules:
 
 ```bash
 make
 # docker build -t vanessa/nu-plugin-len .
 ```
+```bash
+$ docker run -it vanessa/nu-plugin-len
+root@c7235d999a44:/code# nu
+/code> help len
+Return the length of a string
+
+Usage:
+  > len {flags} 
+
+flags:
+  --help
+
+/code> echo four | len
+━━━━━━━━━
+ <value> 
+─────────
+       4 
+━━━━━━━━━
+```
+
+You can also make a container with a standalone binary - we use [pyinstaller](https://pyinstaller.readthedocs.io/en/stable/operating-mode.html) to do this.
+
+```bash
+make standalone
+$ docker run -it vanessa/nu-plugin-len
+```
+
+And execution proceeds as before. We can prove that we don't need the modules anymore because
+the [Dockerfile.standalone](Dockerfile.standalone) does `pip3 uninstall -y nushell` and it still works.
+Why might you want to do this? It will mean that your plugin is a single file (binary) and you don't
+need to rely on modules elsewhere in the system. I suspect there are other ways to compile
+python into a single binary (e.g., cython) but this was the first I tried, and fairly straight forward.
+If you find a different or better way, please contribute to this code base!

@@ -3,15 +3,8 @@
 This is an example implementation of a Pokemon plugin for Nushell in Python,
 based on [vsoch/nushell-plugin-pokemon](https://www.github.com/vsoch/nushell-plugin-pokemon) 
 but instead using the [nushell](https://pypi.org/project/nushell/)
-plugin package. There are two options for creating a plugin in Python
-
- - installing all Python module dependencies to your system, and using a Python file
- - compiling your plugin to generate one package
-
-In both cases, the final executable needs to be called `nu_plugin_pokemon` and
-on the path. If you don't create a single executable, the other module dependencies
- (e.g., pokemon) need to be installed as well. You can build the two Dockerfiles
-provided to see the difference.
+plugin package.  The final executable needs to be called `nu_plugin_pokemon` and
+on the path.
 
 ## Run Locally
 
@@ -101,11 +94,5 @@ make
 # docker build -t vanessa/nu-plugin-pokemon .
 ```
 
-## Build Single Binary
-
-We can use Cython to generate a single binary, and that example is built as follows:
-
-```bash
-make standalone
-# docker build -f Dockerfile.standalone -t vanessa/nu-plugin-pokemon .
-```
+And then interact the same as previously! We can't build a single binary here because
+the data needed for the pokemons is an external file provided by the pokemon module.

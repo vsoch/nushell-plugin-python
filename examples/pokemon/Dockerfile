@@ -5,3 +5,4 @@ RUN apt-get update && \
     pip3 install pokemon nushell
 WORKDIR /code
 COPY nu_plugin_pokemon /usr/local/bin/nu_plugin_pokemon
+ENTRYPOINT ["/bin/bash"]
