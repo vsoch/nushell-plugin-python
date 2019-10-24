@@ -15,6 +15,22 @@ Please contribute new examples along with tweaks to the code! I developed this i
 under a day, so we can likely make it much better, and will need to as nushell
 is developed.
 
+## Install
+
+You can install from pip
+
+```bash
+$ pip install nushell
+```
+
+or from source here:
+
+```bash
+$ git clone https://github.com/vsoch/nushell-plugin-python
+cd nushell-plugin-python
+python setup.py install
+```
+
 ## Filter Plugin
 
 A basic filter plugin will instantiate the `FilterPlugin` class, and then
