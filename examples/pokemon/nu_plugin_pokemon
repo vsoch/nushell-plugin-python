@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+
+# Copyright (C) 2017-2019 Vanessa Sochat.
+
+# This Source Code Form is subject to the terms of the
+# Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+from nushell.sink import SinkPlugin
+
+from pokemon.master import (
+    get_pokemon,
+    catch_em_all
+)
+from pokemon.skills import (
+    get_ascii, 
+    get_avatar
+)
+
+
+# Provide as many custom functions as you need!
+
+def list_pokemon(do_sort=False):
+    '''print list of all names of pokemon in database
+
+       Parameters
+       ==========
+       do_sort: return list of sorted pokemon (ABC)
+    '''
+    names = catch_em_all(return_names=True)
+ 
+    if do_sort:
+        names.sort()
+    for name in names:
+        try:
+            print(name)
+        except:
+            pass
+
+def catch_pokemon():
+    '''use the get_pokemon function to catch a random pokemon, return it
+       (along with stats!) as a single string
+    '''
+    catch = get_pokemon()   
+    for pokemon_id, meta in catch.items():
+        response = meta['ascii']
+        response = "%s\n%s %s" %(response, meta["name"], meta['link'])
+        print(response)
+
+
+# Your sink function will be called by the sink Plugin, and should
+# accept the plugin and the dictionary of params
+def sink(plugin, params):
+    '''sink will be executed by the calling SinkPlugin when method is "sink"
+       and should be able to parse the dictionary of params and respond
+       appropriately. Since this is a sink, whatever you print to stdout
+       will show for the user. Useful functions:
+
+       plugin.logger.<level>
+    '''
+    if params.get('catch', False):
+        plugin.logger.info("We want to catch a random pokemon!")
+        catch_pokemon()
+
+    elif params.get('list', False):
+        plugin.logger.info("We want to list Pokemon names.")
+        list_pokemon()
+
+    elif params.get('list-sorted', False):
+        plugin.logger.info("We want to list sorted Pokemon names.")
+        list_pokemon(do_sort=True)
+
+    elif params.get('avatar', '') != '':
+        plugin.logger.info("We want a pokemon avatar!")
+        catch = get_avatar(params['avatar'])
+
+    elif params.get('pokemon', '') != '':
+        get_ascii(name=params['pokemon'])
+
+    # The plugin has a function to print help
+    else:
+         print(plugin.get_help())
+
+
+# The main function is where you create your plugin and run it.
+def main():
+
+    # Initialize a new plugin
+    plugin = SinkPlugin(name="pokemon", 
+                        usage="Catch an asciinema pokemon on demand.")
+
+
+    # Add named arguments (notice we check for in params in sink function)
+    # add_named_argument(name, argType, syntaxShape=None, usage=None)
+    plugin.add_named_argument("catch", "Switch", usage="catch a random pokemon")
+    plugin.add_named_argument("list", "Switch", usage="list pokemon names")
+    plugin.add_named_argument("list-sorted", "Switch", usage="list sorted names")
+    plugin.add_named_argument("avatar", "Optional", "String", "generate avatar")
+    plugin.add_named_argument("pokemon", "Optional", "String", "get pokemon")
+
+    # Run the plugin by passing your sink function
+    plugin.run(sink)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,112 @@
+
+# Copyright (C) 2019 Vanessa Sochat.
+
+# This Source Code Form is subject to the terms of the
+# Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+
+from nushell.plugin import PluginBase
+
+import copy
+import fileinput
+import json
+import sys
+
+
+class FilterPlugin(PluginBase):
+    '''A filter plugin is identified by is_filter set to true in the
+       configuration, and interacts with nushell by way of nushell
+       asking for the configuration upon discovery on the path (method "config")
+       and then returning responses to begin_filter, end_filter, and filter.
+    '''
+    args = {}
+    params = {}
+    is_filter = True
+
+    # Filter functions work by way of getting primities from the input item
+
+    def get_string_primitive(self):
+        return self.get_primitive("String")
+
+    def get_int_primitive(self, string_value):
+        return self.get_primitive("Int")
+
+    def get_primitive(self, primitive_type):
+        '''get a primitive from an item, expected to be of a type (String
+           or Int typically). We get this from last passed params.
+        '''
+        return self.params["item"]["Primitive"][primitive_type]
+
+    def print_primitive_response(self, value, primitive_type):
+        '''a base function to print a good response with an updated
+           value for a primitive type.
+
+           Parameters
+           ==========
+           value: The primitive value, expected to match the type
+           primitive_type: one of Int or String
+        '''
+        primitive_type = self._camel_case(primitive_type)
+        item = {"Primitive": {primitive_type: value}}
+
+        # Get the original complete passed parameters to update
+        response = copy.deepcopy(self.params)
+        response["item"] = item
+        self.print_good_response([{"Ok": {"Value": response}}])
+
+
+    def print_int_response(self, value):
+        return self.print_primitive_response(value, "Int")
+        
+    def print_string_response(self, value):
+        return self.print_primitive_response(value, "String")
+
+
+    def run(self, runFilter):
+        '''the main run function is required to take a user runFilter function.
+        '''
+        for line in fileinput.input():
+
+            x = json.loads(line)
+            method = x.get("method")
+
+            # Keep log of requests from nu
+            self.logger.info("REQUEST %s" % line)
+            self.logger.info("METHOD %s" % method)
+
+            # Store raw parameters for the plugin memory
+            self.params = x.get('params', {})
+
+            # Case 1: Nu is asking for the config to discover the plugin
+            if method == "config":
+                plugin_config = self.get_config()
+                self.logger.info("plugin-config: %s" % json.dumps(plugin_config))
+                self.print_good_response(plugin_config)
+                break
+
+            elif method == "begin_filter":
+
+                # Arguments only show up for begin_filter
+                self.args = self.parse_params(self.params)
+                self.logger.info("Begin Filter Args: %s" % self.args)
+                self.print_good_response([])
+
+            elif method == "end_filter":
+                self.print_good_response([])
+                break
+
+            # Run the filter, passing the unparsed params
+            elif method == "filter":
+
+                # If the user wants help, return the help and break
+                if "help" in self.args:
+                    self.logger.info("User requested --help")
+                    self.print_string_response(self.get_help())
+ 
+                else:
+                    self.logger.info("RAW PARAMS: %s" % self.params)
+                    runFilter(self, self.args)
+
+            else:
+                break

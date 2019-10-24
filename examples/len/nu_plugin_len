@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+# Copyright (C) 2017-2019 Vanessa Sochat.
+
+# This Source Code Form is subject to the terms of the
+# Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+from nushell.filter import FilterPlugin
+
+# Your filter function will be called by the FilterPlugin, and should
+# accept the plugin and the dictionary of params
+def runFilter(plugin, params):
+    '''runFilter will be executed by the calling SinkPlugin when method is "sink"
+       and should be able to parse the dictionary of params and respond
+       appropriately. Since this is a sink, whatever you print to stdout
+       will show for the user. Useful functions:
+
+       plugin.logger.<level>
+       plugin.get_string_primitive()
+       plugin.get_int_primitive()
+       plugin.print_int_response()
+       plugin.print_string_response()
+    '''
+    # Get the string primitive passed by the user
+    value = plugin.get_string_primitive()
+
+    # Calculate the length
+    intLength = len(value)
+
+    # Print an integer response (can also be print_string_response)
+    plugin.print_int_response(intLength)
+
+
+# The main function is where you create your plugin and run it.
+def main():
+
+    # Initialize a new plugin
+    plugin = FilterPlugin(name="len", 
+                          usage="Return the length of a string")
+
+
+    # Run the plugin by passing your filter function
+    plugin.run(runFilter)
+
+
+if __name__ == '__main__':
+    main()
