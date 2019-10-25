@@ -31,6 +31,19 @@ cd nushell-plugin-python
 python setup.py install
 ```
 
+## Shared Arguments
+
+The following are shared parameters for both filter and sink plugins.
+
+| Name | Description | Required or Default |
+|------|-------------|-------------------|
+| name | the name of the plugin | required |
+| usage | plugin usage | required | 
+| logging | enable logging to `nu_plugin_<name>.log` | defaults to True (enabled) |
+| add_help | add the `--help` flag | defaults to True |
+| parse_params | extract parameters from items | defaults to True |
+
+
 ## Filter Plugin
 
 A basic filter plugin will instantiate the `FilterPlugin` class, and then
@@ -140,11 +153,41 @@ if __name__ == '__main__':
     main()
 ```
 
+### Parameters
+
+Since you can pipe content into a sink, the piped content is parsed into a list
+and passed with params as the `_pipe` key. For example, if we do:
+
+```bash
+> ls | get name | hello --name Dinosaur
+Hello Dinosaur
+```
+
+And then look in the output file, we see that the parsed params include a pipe
+of all the named of the listed files (that we generated above)
+
+```bash
+PARAMS {'name': 'Dinosaur', '_pipe': ['Makefile', 'README.md', 'Dockerfile', 'nu_plugin_hello', 'Dockerfile.standalone']}
+```
+
+If you don't want to parse the pipe, set your plugin.parse_pipe to False:
+
+```python
+plugin.parse_pipe = False
+plugin.run(sink)
+```
+
+And the result will include the full list of entries with items and tags.
+
+```python
+PARAMS {'name': 'Dinosaur', '_pipe': [[{'tag': {'anchor': None, 'span': {'start': 0, 'end': 2}}, 'item': {'Primitive': {'String': 'Makefile'}}}, {'tag': {'anchor': None, 'span': {'start': 0, 'end': 2}}, 'item': {'Primitive': {'String': 'README.md'}}}, {'tag': {'anchor': None, 'span': {'start': 0, 'end': 2}}, 'item': {'Primitive': {'String': 'Dockerfile'}}}, {'tag': {'anchor': None, 'span': {'start': 0, 'end': 2}}, 'item': {'Primitive': {'String': 'nu_plugin_hello'}}}, {'tag': {'anchor': None, 'span': {'start': 0, 'end': 2}}, 'item': {'Primitive': {'String': 'Dockerfile.standalone'}}}]]}
+```
 
 ### Examples
 
  - [pokemon](examples/pokemon) ascii pokemon on demand!
  - [hello](examples/hello) say hello using a sink!
+
 
 ## Single Binary
 

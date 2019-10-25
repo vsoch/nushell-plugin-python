@@ -16,6 +16,7 @@ Critical items to know are:
 Versions here coincide with releases on pypi.
 
 ## [master](https://github.com/vsoch/nushell-plugin-python)
+ - support for sink pipes (0.0.12)
  - adding standalone build examples (0.0.11)
  - adding base of package and examples (0.0.1)
  - skeleton of package while server under development (0.0.0)

@@ -20,6 +20,60 @@ class SinkPlugin(PluginBase):
        and then passing a temporary file as argument (method "sink")
     '''
     is_filter = False
+    parse_pipe = True
+
+    def get_sink_params(self, input_params):
+        '''The input params (under ["params"] is a list, with the first entry
+           being the args dictionary (that we pass to self.parse_params) and
+           the remaining being entries that are passed if the sink is used as 
+           a pipe. If not, it looks like an empty list, like below:
+
+          [{'args': {'positional': None,
+	     'named': {'switch': {'tag': {'anchor': None,
+	        'span': {'start': 58, 'end': 64}},
+	       'item': {'Primitive': {'Boolean': True}}},
+	      'mandatory': {'tag': {'anchor': None, 'span': {'start': 20, 'end': 32}},
+	       'item': {'Primitive': {'String': 'MANDATORYARG'}}},
+	      'optional': {'tag': {'anchor': None, 'span': {'start': 44, 'end': 55}},
+	       'item': {'Primitive': {'String': 'OPTIONALARG'}}}}},
+	    'name_tag': {'anchor': None, 'span': {'start': 0, 'end': 7}}},
+	   []]
+        '''
+        if not input_params:
+            return input_params 
+
+        # Args are always the first entry
+        args = input_params.pop(0)
+        params = self.parse_params(args)
+
+        # The pipe entries are the rest (pass as _pipe)
+        params["_pipe"] = self._parse_pipe(input_params)
+        return params
+
+
+    def _parse_pipe(self, pipeList):
+        '''parse the list of piped input, typically this means string that
+           have come from the terminal. To disable this, set the client
+           parse_pipe to False.
+
+           Parameters
+           ==========
+           pipeList: is the second index of the "params" dict from the request
+        '''
+        # No pipe will produce empty list
+        if not pipeList or not self.parse_pipe:
+            return pipeList
+
+        pipeList = pipeList.pop(0)
+
+        # Return list of values as the pipe content
+        entries = []
+
+        # Each entry has a tag and item. We want the Primitive (type)
+        for entry in pipeList:
+            item = entry['item'].get('Primitive')
+            entries = entries + list(item.values())
+        return entries
 
     def run(self, sinkFunc):
         '''the main run function is required to take a user sinkFunc.
@@ -43,8 +97,8 @@ class SinkPlugin(PluginBase):
             # Case 3: A filter must return the item filtered with a tag
             elif method == "sink":
 
-                # Parse parameters for the calling sink
-                params = self.parse_params(x['params'])
+                # Parse parameters for the calling sink, _pipe included
+                params = self.get_sink_params(x['params'])
                 self.logger.info("PARAMS %s" % params)
 
                 # The only case of not running is if the user asks for help
