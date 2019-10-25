@@ -32,7 +32,7 @@ path and it's valid.
 Catch an asciinema pokemon on demand.
 
 Usage:
-  > pokemon {flags} 
+  > pokemon {flags} (avatar) 
 
 flags:
   --catch
@@ -43,22 +43,32 @@ flags:
   --help
 ```
 
+Notice how (avatar) can be provided as an optional positional argument OR a flag?
+That means these two commands do the same thing:
+
+```bash
+> pokemon --avatar Dinosaur
+> pokemon Dinosaur
+```
+
 As a helper, the plugin library automatically adds a `--help` function that also shows
 usage for each argument, if the creator provided it:
 
 ```bash
 > pokemon --help
-pokemon: Catch an asciinema pokemon on demand.
+poke: Catch an asciinema pokemon on demand.
+
+avatar AVATAR       generate avatar
 --catch             catch a random pokemon
 --list              list pokemon names
 --list-sorted       list sorted names
 --avatar AVATAR     generate avatar
 --pokemon POKEMON   get pokemon
---help             show this usage
+--help              show this usage
 ```
 
+Again, notice that this function also shows avatar as both a positional and optional argument.
 And then have fun!
-
 
 ```bash
 > pokemon --catch

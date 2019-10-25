@@ -65,15 +65,8 @@ class SinkPlugin(PluginBase):
             return pipeList
 
         pipeList = pipeList.pop(0)
+        return self.parse_primitives(pipeList)
 
-        # Return list of values as the pipe content
-        entries = []
-
-        # Each entry has a tag and item. We want the Primitive (type)
-        for entry in pipeList:
-            item = entry['item'].get('Primitive')
-            entries = entries + list(item.values())
-        return entries
 
     def run(self, sinkFunc):
         '''the main run function is required to take a user sinkFunc.

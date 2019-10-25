@@ -58,7 +58,15 @@ def sink(plugin, params):
 
        plugin.logger.<level>
     '''
-    if params.get('catch', False):
+    # Positional arguments
+    positional = params.get('_positional', [])
+
+    # If a single positional argument is provided, it's the name
+    if len(positional) > 0:
+        plugin.logger.info("We are given an avatar as positional argument")    
+        catch = get_avatar(positional[0])
+
+    elif params.get('catch', False):
         plugin.logger.info("We want to catch a random pokemon!")
         catch_pokemon()
 
@@ -89,7 +97,6 @@ def main():
     plugin = SinkPlugin(name="pokemon", 
                         usage="Catch an asciinema pokemon on demand.")
 
-
     # Add named arguments (notice we check for in params in sink function)
     # add_named_argument(name, argType, syntaxShape=None, usage=None)
     plugin.add_named_argument("catch", "Switch", usage="catch a random pokemon")
@@ -97,6 +104,9 @@ def main():
     plugin.add_named_argument("list-sorted", "Switch", usage="list sorted names")
     plugin.add_named_argument("avatar", "Optional", "String", "generate avatar")
     plugin.add_named_argument("pokemon", "Optional", "String", "get pokemon")
+
+    # The user can optionally just give a name (a positional argument)
+    plugin.add_positional_argument("avatar", "Optional", "String")
 
     # Run the plugin by passing your sink function
     plugin.run(sink)

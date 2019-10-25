@@ -35,6 +35,7 @@ class PluginBase:
         self.name = self._clean_name(name)
         self.usage = usage
         self.positional = []
+        self._positional = [] # list of names
         self.rest_positional = None
         self.named = {}
         self.argUsage = {}
@@ -43,6 +44,52 @@ class PluginBase:
         self._parse_params = parse_params
 
 # Arguments
+
+    def _check_argument(self, name, argType, syntaxShape):
+        '''check an argument (named or positional) to ensure that the name
+           is lowercase without spaces, and the syntaxShape is valid
+           return the cleaned values.
+        '''
+        name = self._clean_name(name)
+        argType = self._camel_case(argType)
+
+        # If syntaxShape provided, ensure is valid (warn user if not)
+        if syntaxShape:
+            syntaxShape = self._get_syntax_shape(syntaxShape)
+
+        # Return the parse argument
+        arg = {"name": name,
+               "type": argType,
+               "shape": syntaxShape}
+
+        return arg
+
+
+    def add_positional_argument(self, name, argType, syntaxShape=None, usage=None):
+        '''a positional argument doesn't require a flag, but is provided
+           based on a positional index
+        '''
+        # includes name, type, shape
+        arg = self._check_argument(name, argType, syntaxShape)
+
+        # Syntax shape must be provided for Optional/Mandatory
+        if arg['type'] not in ["Optional", "Mandatory"]:
+            self.logger.exit("positional type can only be Optional/Mandatory")
+
+        # Mandatory can have no syntax shape, Any or Block
+        if not arg['shape']:
+             self.positional.append({arg["type"]: [arg["name"]]})
+        else:
+             self.positional.append({arg["type"]: [arg["name"], arg["shape"]]})
+
+        # Add to list of names, we use this to add to --help
+        self._positional.append(arg['name'])
+
+        # Add the usage, if defined
+        if usage is not None:
+            self.argUsage[arg['name']] = usage
+
+        self.logger.debug("Updated positional arguments %s" % self._positional)
 
 
     def add_named_argument(self, name, argType, syntaxShape=None, usage=None):
@@ -58,25 +105,21 @@ class PluginBase:
            syntaxShape: if not Switch, must provide syntaxShape.
            usage: if provided, is added to argUsage for custom --help
         '''
-        name = self._clean_name(name)
-        argType = self._camel_case(argType)
-
         # Syntax shape must be provided for Optional/Mandatory
         if argType in ["Optional", "Mandatory"] and not syntaxShape:
             self.logger.exit("SyntaxShape is required for Optional/Mandatory")
 
-        # If syntaxShape provided, ensure is valid (warn user if not)
-        if syntaxShape:
-            syntaxShape = self._get_syntax_shape(syntaxShape)
+        # includes name, type, shape
+        arg = self._check_argument(name, argType, syntaxShape)
 
-        if argType == "Switch":
-            self.named[name] = "Switch"
-        elif argType in ["Optional", "Mandatory"]:
-            self.named[name] = {argType: syntaxShape}
+        if arg['type'] == "Switch":
+            self.named[arg['name']] = "Switch"
+        elif arg['type'] in ["Optional", "Mandatory"]:
+            self.named[arg['name']] = {arg['type']: arg['shape']}
 
         # Add usage, if provided
         if usage:
-            self.argUsage[name] = usage
+            self.argUsage[arg['name']] = usage
 
         self.logger.debug("Updated named arguments %s" % self.named)
 
@@ -145,11 +188,35 @@ class PluginBase:
 
 # Parsing, Help and Tags
 
+    def parse_primitives(self, listing):
+        '''given a listing of primitives (e.g., a pipelist from _parse_pipe
+           or positional arguments from parse_params) return the content
+           of the primitive, regardless of type. Input should look like:
+   
+            [{"tag":
+               {"anchor":null,"span":{"start":5,"end":6}},
+               "item":{"Primitive":{"Int":1}}}..]
+        '''
+        # In case None
+        listing = listing or []
+
+        # Return list of values as the pipe content
+        entries = []
+
+        # Each entry has a tag and item. We want the Primitive (type)
+        for entry in listing:
+            item = entry['item'].get('Primitive')
+            entries = entries + list(item.values())
+
+        return entries
+
+
     def getTag(self):
         '''for local testing without Nu, we provide a function to return
            a dummy tag
         '''
         return {"anchor":None, "span":{"end":0,"start":0}}
+
 
     def parse_params(self, input_params):
         '''parse the parameters into an easier to parse object. An example looks 
@@ -198,6 +265,8 @@ class PluginBase:
             else:
                 self.logger.info("Invalid paramater type %s:%s" %(name, values))
 
+        # Add positional arguments
+        params["_positional"] = self.parse_primitives(positional)
         return params        
 
 
@@ -207,6 +276,21 @@ class PluginBase:
         '''
         args = ""
 
+        # Positional arguments
+        if len(self._positional) > 0:
+            for name in self._positional:
+
+                argString = "%s %s" %(name, name.upper())
+
+                spaces = 19 - len(argString)
+                args = args + argString + " "*spaces
+
+                # If a usage is defined
+                if self.argUsage.get(name) is not None:
+                    args += " %s" % self.argUsage.get(name)
+                args += "\n"                    
+
+        # Named arguments
         for name, argType in self.named.items():
 
             # If it's a mandatory or optional
@@ -228,7 +312,7 @@ class PluginBase:
         if "help" not in self.named and self.add_help:
             args += "--help              show this usage\n"
 
-        return "%s: %s\n%s\n" %(self.name, self.usage, args)
+        return "%s: %s\n\n%s\n" %(self.name, self.usage, args)
 
 
 # Helpers
