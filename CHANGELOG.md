@@ -16,6 +16,7 @@ Critical items to know are:
 Versions here coincide with releases on pypi.
 
 ## [master](https://github.com/vsoch/nushell-plugin-python)
+ - allowing end-filter to return help response (0.0.15)
  - adding general function to get any primitive (0.0.14)
  - parsing of positional arguments (0.0.13)
  - support for sink pipes (0.0.12)

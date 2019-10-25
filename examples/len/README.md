@@ -61,12 +61,12 @@ the present working directory.
 ```
 
 As a helper, the plugin library automatically adds a `--help` function that also shows
-usage for each argument, if the creator provided it. Since this is a filter,
-you have to run it as a filter (to trigger the filter method) to see it:
+usage for each argument, if the creator provided it.
 
 ```bash
-> echo four | len --help
+> len --help
 len: Return the length of a string
+
 --help              show this usage
 ```
 
