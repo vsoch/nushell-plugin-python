@@ -31,6 +31,19 @@ cd nushell-plugin-python
 python setup.py install
 ```
 
+## Shared Arguments
+
+The following are shared parameters for both filter and sink plugins.
+
+| Name | Description | Required or Default |
+|------|-------------|-------------------|
+| name | the name of the plugin | required |
+| usage | plugin usage | required | 
+| logging | enable logging to `nu_plugin_<name>.log` | defaults to True (enabled) |
+| add_help | add the `--help` flag | defaults to True |
+| parse_params | extract parameters from items | defaults to True |
+
+
 ## Filter Plugin
 
 A basic filter plugin will instantiate the `FilterPlugin` class, and then

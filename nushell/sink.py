@@ -22,7 +22,7 @@ class SinkPlugin(PluginBase):
     is_filter = False
     parse_pipe = True
 
-    def get_params(self, input_params):
+    def get_sink_params(self, input_params):
         '''The input params (under ["params"] is a list, with the first entry
            being the args dictionary (that we pass to self.parse_params) and
            the remaining being entries that are passed if the sink is used as 
@@ -98,7 +98,7 @@ class SinkPlugin(PluginBase):
             elif method == "sink":
 
                 # Parse parameters for the calling sink, _pipe included
-                params = self.get_params(x['params'])
+                params = self.get_sink_params(x['params'])
                 self.logger.info("PARAMS %s" % params)
 
                 # The only case of not running is if the user asks for help

@@ -19,7 +19,9 @@ class PluginBase:
     '''a PluginBase includes a name, usage, and is the base class for both
        a sink and filter plugin
     '''
-    def __init__(self, name, usage, logging=True, add_help=True):
+    def __init__(self, name, usage, 
+                 logging=True, add_help=True, parse_params=True):
+
         '''Set the name and usage to generate the configuration
 
            Parameters
@@ -28,6 +30,7 @@ class PluginBase:
            usage: the plugin usage, should be one line
            logging: if True, will output logfile to /tmp/nu_plugin_<name>.log
            add_help: if True, adds a custom --help command (unless defined)
+           parse_params: extract values from "args" (don't return raw)
         '''
         self.name = self._clean_name(name)
         self.usage = usage
@@ -37,7 +40,7 @@ class PluginBase:
         self.argUsage = {}
         self.logger = self.get_logger(logging)
         self.add_help = add_help
-
+        self._parse_params = parse_params
 
 # Arguments
 
@@ -167,6 +170,10 @@ class PluginBase:
             return input_params 
 
         if "args" not in input_params:
+            return input_params
+
+        # Does the plugin want to skip parsing params?
+        if not self._parse_params:
             return input_params
 
         positional = input_params['args'].get('positional', [])
