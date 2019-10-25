@@ -1,0 +1,11 @@
+FROM quay.io/nushell/nu:devel
+LABEL Maintainer vsochat@stanford.edu
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip && \
+    pip3 install nushell pyinstaller
+WORKDIR /code
+COPY nu_plugin_plus /code/nu_plugin_plus
+RUN pyinstaller --onefile nu_plugin_plus && \
+    cp dist/nu_plugin_plus /usr/local/bin/nu_plugin_plus && \
+    pip3 uninstall -y nushell
+ENTRYPOINT ["/bin/bash"]

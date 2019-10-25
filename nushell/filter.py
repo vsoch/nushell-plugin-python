@@ -29,7 +29,7 @@ class FilterPlugin(PluginBase):
     def get_string_primitive(self):
         return self.get_primitive("String")
 
-    def get_int_primitive(self, string_value):
+    def get_int_primitive(self):
         return self.get_primitive("Int")
 
     def get_primitive(self, primitive_type):

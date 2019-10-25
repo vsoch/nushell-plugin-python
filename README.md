@@ -31,7 +31,7 @@ cd nushell-plugin-python
 python setup.py install
 ```
 
-## Shared Arguments
+## Plugin Class Arguments
 
 The following are shared parameters for both filter and sink plugins.
 
@@ -43,6 +43,62 @@ The following are shared parameters for both filter and sink plugins.
 | add_help | add the `--help` flag | defaults to True |
 | parse_params | extract parameters from items | defaults to True |
 
+
+## Parameters
+
+Parameters can be named or positional arguments that are defined for your
+plugin. You can actually have positional and named arguments with the
+same name, and define the help string for one (and it will be used by
+the other).
+
+### Named Parameters
+
+For either a sink or a filter, you can pass in named arguments, meaning that your
+plugin will parse them like:
+
+```
+$ <plugin> --<name> <value>
+```
+
+or for a boolean (called a Switch)
+
+```
+$ <plugin> --<switch>
+```
+
+Here are examples of adding all kinds of named arguments
+
+```python
+# add_named_argument(name, argType, syntaxShape=None, usage=None)
+plugin.add_named_argument("catch", "Switch", usage="catch a random pokemon")
+plugin.add_named_argument("list", "Switch", usage="list pokemon names")
+plugin.add_named_argument("list-sorted", "Switch", usage="list sorted names")
+plugin.add_named_argument("avatar", "Optional", "String", "generate avatar")
+plugin.add_named_argument("pokemon", "Optional", "String", "get pokemon")
+```
+
+For an argument to be Mandatory, just change "Optional" to "Mandatory" (the 
+above plugin doesn't require anything).
+
+
+### Positional Arguments
+
+Positional arguments come after the plugin name, but don't have a flag.
+For example:
+
+```bash
+$ <plugin> <positional>
+```
+
+Here are examples of adding positional arguments. Each needs a name,
+if it's Mandatory or Optional (there is no Switch), the SyntaxShape (e.g. String, Int, Any)
+and then a usage string.
+
+```python
+# add_positional_argument(name, argType, syntaxShape=None, usage=None)
+plugin.add_positional_argument("number", "Mandatory", "Int", usage="number to parse")
+plugin.add_positional_argument("secondNumber", "Optional", "Any", usage="second number to parse")
+```
 
 ## Filter Plugin
 
@@ -100,6 +156,7 @@ plugin.print_string_response()
 ### Examples
 
  - [len](examples/len) is a basic function to return the length of a string
+ - [plus](examples/plus) adds two ints, and is an example with positional arguments
 
 
 ## Sink Plugin

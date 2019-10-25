@@ -16,6 +16,7 @@ Critical items to know are:
 Versions here coincide with releases on pypi.
 
 ## [master](https://github.com/vsoch/nushell-plugin-python)
+ - parsing of positional arguments (0.0.13)
  - support for sink pipes (0.0.12)
  - adding standalone build examples (0.0.11)
  - adding base of package and examples (0.0.1)
