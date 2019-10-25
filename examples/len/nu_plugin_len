@@ -11,10 +11,9 @@ from nushell.filter import FilterPlugin
 # Your filter function will be called by the FilterPlugin, and should
 # accept the plugin and the dictionary of params
 def runFilter(plugin, params):
-    '''runFilter will be executed by the calling SinkPlugin when method is "sink"
+    '''runFilter will be executed by the calling FilterPlugin (method filter)
        and should be able to parse the dictionary of params and respond
-       appropriately. Since this is a sink, whatever you print to stdout
-       will show for the user. Useful functions:
+       appropriately. Useful functions:
 
        plugin.logger.<level>
        plugin.get_string_primitive()
