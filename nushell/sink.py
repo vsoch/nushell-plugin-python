@@ -50,6 +50,7 @@ class SinkPlugin(PluginBase):
         params["_pipe"] = self._parse_pipe(input_params)
         return params
 
+
     def _parse_pipe(self, pipeList):
         '''parse the list of piped input, typically this means string that
            have come from the terminal. To disable this, set the client
@@ -60,7 +61,7 @@ class SinkPlugin(PluginBase):
            pipeList: is the second index of the "params" dict from the request
         '''
         # No pipe will produce empty list
-        if not pipeList:
+        if not pipeList or not self.parse_pipe:
             return pipeList
 
         pipeList = pipeList.pop(0)
