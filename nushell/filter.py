@@ -32,11 +32,14 @@ class FilterPlugin(PluginBase):
     def get_int_primitive(self):
         return self.get_primitive("Int")
 
-    def get_primitive(self, primitive_type):
+    def get_primitive(self, primitive_type=None):
         '''get a primitive from an item, expected to be of a type (String
            or Int typically). We get this from last passed params.
         '''
-        return self.params["item"]["Primitive"][primitive_type]
+        if primitive_type:
+            return self.params["item"]["Primitive"][primitive_type]
+        else:
+            return list(self.params["item"]["Primitive"].values())[0]
 
     def print_primitive_response(self, value, primitive_type):
         '''a base function to print a good response with an updated

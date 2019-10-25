@@ -1,7 +1,11 @@
 # Nu Plugin Plus
 
 There is already an [add](https://github.com/nushell/nushell/blob/master/src/plugins/add.rs) plugin (so we can't define that) but this simple plugin is instead called "plus" and shows how to use a filter with
-positional arguments to add two numbers (integers). Here are simple examples of how it works!
+positional arguments to add two numbers (integers).  You can watch an example here:
+
+[![asciicast](https://asciinema.org/a/277050.svg)](https://asciinema.org/a/277050?speed=2)
+
+Or here are simple examples of how it works!
 
 ```bash
 Add a number to what is passed to the filter.
@@ -36,6 +40,23 @@ If you give the wrong type, no go!
 ```bash
 > echo boo | plus 8
 boo is not a number
+```
+
+Combine with other plugins too. Here is an example of listing files, getting the name,
+calculating the length, and adding 100 to it.
+
+```bash
+> ls | get name | len | plus 100
+━━━┯━━━━━━━━━━━
+ # │ <unknown> 
+───┼───────────
+ 0 │ 114 
+ 1 │ 108 
+ 2 │ 109 
+ 3 │ 109 
+ 4 │ 110 
+ 5 │ 121 
+━━━┷━━━━━━━━━━━
 ```
 
 ## Run Locally
