@@ -140,11 +140,28 @@ if __name__ == '__main__':
     main()
 ```
 
+### Parameters
+
+Since you can pipe content into a sink, the piped content is parsed into a list
+and passed with params as the `_pipe` key. For example, if we do:
+
+```bash
+> ls | get name | hello --name Dinosaur
+Hello Dinosaur
+```
+
+And then look in the output file, we see that the parsed params include a pipe
+of all the named of the listed files (that we generated above)
+
+```bash
+PARAMS {'name': 'Dinosaur', '_pipe': ['Makefile', 'README.md', 'Dockerfile', 'nu_plugin_hello', 'Dockerfile.standalone']}
+```
 
 ### Examples
 
  - [pokemon](examples/pokemon) ascii pokemon on demand!
  - [hello](examples/hello) say hello using a sink!
+
 
 ## Single Binary
 

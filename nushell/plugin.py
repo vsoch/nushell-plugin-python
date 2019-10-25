@@ -148,13 +148,12 @@ class PluginBase:
         '''
         return {"anchor":None, "span":{"end":0,"start":0}}
 
-
     def parse_params(self, input_params):
         '''parse the parameters into an easier to parse object. An example looks 
-           like the following (I'm not sure why an empty list is passed as a second
-           entry)
+           like the following. For a sink - this is the first item in a list
+           under params. For a filter, it's a dict directly under params.
 
-          [{'args': {'positional': None,
+          {'args': {'positional': None,
 	     'named': {'switch': {'tag': {'anchor': None,
 	        'span': {'start': 58, 'end': 64}},
 	       'item': {'Primitive': {'Boolean': True}}},
@@ -163,14 +162,9 @@ class PluginBase:
 	      'optional': {'tag': {'anchor': None, 'span': {'start': 44, 'end': 55}},
 	       'item': {'Primitive': {'String': 'OPTIONALARG'}}}}},
 	    'name_tag': {'anchor': None, 'span': {'start': 0, 'end': 7}}},
-	   []]
         '''
         if not input_params:
             return input_params 
-
-        # For some reason sink passes a list
-        if isinstance(input_params, list):     
-            input_params = input_params[0]
 
         if "args" not in input_params:
             return input_params
