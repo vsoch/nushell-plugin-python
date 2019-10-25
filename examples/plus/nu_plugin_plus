@@ -21,11 +21,8 @@ def runFilter(plugin, params):
        plugin.print_int_response()
        plugin.print_string_response()
     '''
-    # This should be a (string) number, but we can't be certain
-    try:
-        value = plugin.get_string_primitive()
-    except:
-        plugin.print_string_response(plugin.get_help())
+    # don't care about type, can also be get_string_primitive or get_int_primitive
+    value = plugin.get_primitive()
 
     # Get the string primitive passed from the filter (should be Int)
     try:
