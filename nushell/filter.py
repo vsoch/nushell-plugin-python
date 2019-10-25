@@ -78,8 +78,9 @@ class FilterPlugin(PluginBase):
             self.logger.info("REQUEST %s" % line)
             self.logger.info("METHOD %s" % method)
 
-            # Store raw parameters for the plugin memory
-            self.params = x.get('params', {})
+            # Store raw parameters for the plugin memory, only if not end filter
+            if method != "end_filter":
+                self.params = x.get('params', {})
 
             # Case 1: Nu is asking for the config to discover the plugin
             if method == "config":
@@ -95,21 +96,25 @@ class FilterPlugin(PluginBase):
                 self.logger.info("Begin Filter Args: %s" % self.args)
                 self.print_good_response([])
 
+            # End filter can end the filter, OR call a custom sink function
             elif method == "end_filter":
-                self.print_good_response([])
+
+                # If the user wants help, return the help and break
+                if "help" in self.args:
+
+                    # We need to update so name_tag is tag (not logical I know)
+                    self.params['tag'] = self.params.get('name_tag', self.getTag())
+                    self.logger.info("User requested --help")
+                    self.print_string_response(self.get_help())
+                else:
+                    self.print_good_response([])
                 break
 
             # Run the filter, passing the unparsed params
             elif method == "filter":
-
-                # If the user wants help, return the help and break
-                if "help" in self.args:
-                    self.logger.info("User requested --help")
-                    self.print_string_response(self.get_help())
  
-                else:
-                    self.logger.info("RAW PARAMS: %s" % self.params)
-                    runFilter(self, self.args)
+                self.logger.info("RAW PARAMS: %s" % self.params)
+                runFilter(self, self.args)
 
             else:
                 break
