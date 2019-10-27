@@ -14,11 +14,15 @@ sourceenv: &sourceenv
     name: Source environment variables from the BASH_ENV
     command: source $BASH_ENV 
 
+install: &install
+  name: install dependencies
+  command: |
+     sudo pip3 install --upgrade pylint pytest
+
 
 run_linter: &run_linter
   name: run linter
   command: |
-     sudo pip3 install --upgrade pylint
      cd /tmp/src
      pylint nushell --ignore=nushell/tests
 
@@ -48,6 +52,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker     
+      - run: *install
       - run: *run_linter
       - run: *test_nushell
 
