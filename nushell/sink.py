@@ -10,7 +10,6 @@ from nushell.plugin import PluginBase
 
 import fileinput
 import json
-import sys
 
 
 class SinkPlugin(PluginBase):
@@ -68,6 +67,33 @@ class SinkPlugin(PluginBase):
         return self.parse_primitives(pipeList)
 
 
+    def test(self, sinkFunc, line):
+        '''test is akin to run, but instead of printing a result for the user,
+           we return to the calling function. A line to parse is also required.
+           since it's coming from Python, we also assume that we don't need to
+           json.loads() the line from a string (it's a dictionary)
+        '''
+        method = line.get("method")
+
+        # Case 1: Nu is asking for the config to discover the plugin
+        if method == "config":
+            plugin_config = self.get_config()
+            return self.get_good_response(plugin_config)
+            
+        # Case 3: A filter must return the item filtered with a tag
+        elif method == "sink":
+
+            # Parse parameters for the calling sink, _pipe included
+            params = self.get_sink_params(line['params'])
+
+            # The only case of not running is if the user asks for help
+            if params.get('help', False):
+                return self.get_help()
+
+            # Run the sink, and provide the user with plugin and params
+            return sinkFunc(self, params)
+
+
     def run(self, sinkFunc):
         '''the main run function is required to take a user sinkFunc.
         '''
@@ -87,7 +113,7 @@ class SinkPlugin(PluginBase):
                 self.print_good_response(plugin_config)
                 break
 
-            # Case 3: A filter must return the item filtered with a tag
+            # Case 2: A sink passes execution to the sink function
             elif method == "sink":
 
                 # Parse parameters for the calling sink, _pipe included

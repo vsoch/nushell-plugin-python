@@ -8,7 +8,6 @@
 
 from nushell.logger import NushellLogger
 
-import fileinput
 import json
 import os
 import sys
@@ -78,9 +77,9 @@ class PluginBase:
 
         # Mandatory can have no syntax shape, Any or Block
         if not arg['shape']:
-             self.positional.append({arg["type"]: [arg["name"]]})
+            self.positional.append({arg["type"]: [arg["name"]]})
         else:
-             self.positional.append({arg["type"]: [arg["name"], arg["shape"]]})
+            self.positional.append({arg["type"]: [arg["name"], arg["shape"]]})
 
         # Add to list of names, we use this to add to --help
         self._positional.append(arg['name'])
@@ -151,17 +150,24 @@ class PluginBase:
         return NushellLogger(logfile)
 
 
-    def print_good_response(self, response):
-        '''a good response confirms to jsonprc 2.0, we include a method "response" and
-           params, which should be a dict with key "Ok" and value as the json config,
-           (config) an empty list (begin_filter or end_filter) or a list of dict
-           responses (filter).
+    def get_good_response(self, response):
+        '''generate a good response. Confirming to jsonprc 2.0, we include a 
+           method "response" and params that should be a dict with key "Ok" and 
+           value as a config, an empty list (begin or end filter) or a list
+           of dict responses (for a filter)
         '''
         json_response = {
             "jsonrpc": "2.0",
             "method": "response",
             "params": {"Ok": response}
         }
+        return json_response
+
+
+    def print_good_response(self, response):
+        '''generate and print a good response.
+        '''
+        json_response = self.get_good_response(response)
         self.logger.info("Printing response %s" % response)
         print(json.dumps(json_response))
         sys.stdout.flush()
@@ -172,10 +178,13 @@ class PluginBase:
  
     def get_config(self):
         '''return configuration object, is_filter must be defined by subclass
+           note that get_config is the first call to any kind of plugin,
+           so here is where we add a help argument if it's not added.
         '''
         # If help not in named, add it.
         if "help" not in self.named and self.add_help:
             self.named['help'] = "Switch"
+            self.argUsage['help'] = "show this usage"
 
         return {
             "name": self.name,
@@ -215,7 +224,7 @@ class PluginBase:
         '''for local testing without Nu, we provide a function to return
            a dummy tag
         '''
-        return {"anchor":None, "span":{"end":0,"start":0}}
+        return {"anchor":None, "span":{"end":0, "start":0}}
 
 
     def parse_params(self, input_params):
@@ -277,7 +286,7 @@ class PluginBase:
         args = ""
 
         # Positional arguments
-        if len(self._positional) > 0:
+        if self._positional:
             for name in self._positional:
 
                 argString = "%s %s" %(name, name.upper())
@@ -307,10 +316,6 @@ class PluginBase:
             if self.argUsage.get(name) is not None:
                 args += " %s" % self.argUsage.get(name)
             args += "\n"                    
-
-        # Add help, if not already added
-        if "help" not in self.named and self.add_help:
-            args += "--help              show this usage\n"
 
         return "%s: %s\n\n%s\n" %(self.name, self.usage, args)
 
